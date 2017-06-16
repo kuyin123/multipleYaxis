@@ -10,12 +10,12 @@
 
     #content1,
     #content2 {
-      width: 80vw;
+      width: 100%;
       height: 600px;
       margin: 0 auto;
     }
   </style>
-  <script src="echarts.min.js"></script>
+  <script src="./echarts-dev.js"></script>
 </head>
 
 <body>
@@ -28,114 +28,156 @@
 </section>
 <script type="text/javascript">
   // 基于准备好的dom，初始化echarts实例
-  var myChart = echarts.init(document.getElementById('content1'));
+  const myChart = echarts.init(document.getElementById('content1'));
 
   // 指定图表的配置项和数据
   //app.title = '多 Y 轴示例';
 
-  var colors = ['#5793f3', '#d14a61', '#675bba'];
-  myChart.setOption(
-    option = {
-      color: colors,
+  const colors = ['#5793f3', '#d14a61', '#675bba'];
 
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'cross'
-        }
-      },
-      grid: {
-        right: '20%'
-      },
-      dataZoom: [{
-        type: 'inside'
-      }],
-      toolbox: {
-        feature: {
-          dataView: {
-            show: true,
-            readOnly: false
-          },
-          dataZoom: {
-            yAxisIndex: 'none'
-          },
-          restore: {
-            show: true
-          },
-          saveAsImage: {
-            show: true
-          }
-        }
-      },
-      legend: {
-        data: ['蒸-发量', '降水量']
-      },
-      xAxis: [{
-        type: 'category',
-        axisTick: {
-          alignWithLabel: true
+  let markPointVal = [{}];
+
+  let option = {
+
+    color: colors,
+
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      }
+    },
+    grid: {
+      right: '20%'
+    },
+    dataZoom: [{
+      type: 'inside'
+    }],
+    /*toolbox: {
+     show: true,
+     feature: {
+     dataView: {
+     show: true,
+     readOnly: false
+     },
+     dataZoom: {
+     show: true,
+     yAxisIndex: false
+     },
+     restore: {
+     show: true
+     },
+     saveAsImage: {
+     show: true
+     }
+     }
+     },*/
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {
+          show: true,
         },
-        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-      }],
-      yAxis: [{
-        type: 'value',
-        name: '蒸-发量',
-        min: 0 - 100,
-        max: 250 + 100,
-        position: 'left',
-        axisLine: {
-          lineStyle: {
-            color: colors[0]
-          }
+        restore: {
+          show: true,
         },
-        axisLabel: {
-          formatter: '{value} ml'
-        }
-      }, {
-        type: 'value',
-        name: '降水量',
-        min: 0 - 100,
-        max: 250 + 100,
-        position: 'left',
-        offset: 80,
-        axisLine: {
-          lineStyle: {
-            color: colors[1]
-          }
+        dataView: {
+          show: true,
         },
-        axisLabel: {
-          formatter: '{value} ml'
+        dataZoom: {
+          show: true,
+        },
+        magicType: {
+          show: true,
+        },
+        // brush: {
+        //     show:true,
+        // },
+      },
+    },
+    legend: {
+      data: ['蒸发量']
+    },
+    xAxis: [{
+      type: 'category',
+      axisTick: {
+        alignWithLabel: true
+      },
+      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+    }],
+    yAxis: [{ // 多Y轴
+      type: 'value',
+      name: '蒸发量',
+      min: 0,
+      max: 250 + 100,
+      position: 'left',
+      offset: 10,
+      axisLine: {
+        lineStyle: {
+          color: colors[0]
         }
-      }],
-      series: [{
-        name: '蒸-发量',
-        type: 'line',
-        data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
-      }, {
-        name: '降水量',
-        type: 'line',
-        yAxisIndex: 1,
-        data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-      }]
-    }
-  );
+      },
+      axisLabel: {
+        formatter: '{value} ml'
+      }
+    }],
+    series: [{
+      markArea: {
+        data: [[{
+          yAxis: 0
+        }, {
+          yAxis: 350
+        }]]
+      },
+      markPoint: {
+        data: markPointVal,
+        animation: false
+      },
+      name: '蒸发量',
+      type: 'line',
+      data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+    }]
+  };
+
+  myChart.on('showTip', function (p) {
+    let a = 1;
+  });
+
+  let oPoint = {}; // 存放每个点点击状态
   myChart.on('click', function (params) {
+    // 点击到了 markPoint 上
     if (params.componentType === 'markPoint') {
-      // 点击到了 markPoint 上
       if (params.seriesIndex === 5) {
         // 点击到了 index 为 5 的 series 的 markPoint 上。
       }
     } else if (params.componentType === 'series') {
-      if (params.seriesType === 'graph') {
-        if (params.dataType === 'edge') {
-          // 点击到了 graph 的 edge（边）上。
+      if (params.seriesType === 'line') {
+        // 初次点击, 所有的点对应的值都是 undefined
+        oPoint[params.dataIndex] = !oPoint[params.dataIndex];
+        // 如果状态值为真, 显示 markPoint
+        if (oPoint[params.dataIndex]) {
+          let tempObj = {};
+          tempObj.xAxis = params.dataIndex;
+          tempObj.value = params.data;
+          tempObj.yAxis = params.data;
+          markPointVal.push(tempObj);
+          option.series[0].markPoint.data = markPointVal;
+          myChart.setOption(option);
         } else {
-          // 点击到了 graph 的 node（节点）上。
+          // 如果状态值为假, 隐藏 markPoint
+          let delObjIdx = markPointVal.findIndex(function (el) {
+            return el.xAxis === params.dataIndex;
+          });
+          markPointVal.splice(delObjIdx, 1);
+          option.series[0].markPoint.data = markPointVal;
+          myChart.setOption(option);
         }
       }
     }
-
   });
+
+  myChart.setOption(option);
+
 </script>
 </body>
 </html>
