@@ -29,18 +29,13 @@
 <script type="text/javascript">
   // 基于准备好的dom，初始化echarts实例
   const myChart = echarts.init(document.getElementById('content1'));
-
-  // 指定图表的配置项和数据
-  //app.title = '多 Y 轴示例';
-
   const colors = ['#5793f3', '#d14a61', '#675bba'];
 
-  let markPointVal = [{}];
-
+  let markPointVal = []; // 存储标记点的数据对象
+  let showTipIdx = null; // 除了折线外其他地方点击存储的 idx
+  let seriesVal = [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3];
   let option = {
-
     color: colors,
-
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -135,48 +130,67 @@
       },
       name: '蒸发量',
       type: 'line',
-      data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+      data: seriesVal
     }]
   };
 
-  myChart.on('showTip', function (p) {
-    let a = 1;
+  myChart.on('showTip', function (arg) {
+    showTipIdx = arg.dataIndex;
   });
 
-  let oPoint = {}; // 存放每个点点击状态
+  let oPoint = {}; // 存放每个点显隐状态
+  let arg = {}; // 控制标记点的函数实参
+
   myChart.on('click', function (params) {
-    // 点击到了 markPoint 上
-    if (params.componentType === 'markPoint') {
-      if (params.seriesIndex === 5) {
-        // 点击到了 index 为 5 的 series 的 markPoint 上。
-      }
-    } else if (params.componentType === 'series') {
-      if (params.seriesType === 'line') {
+    switch (params.componentType) {
+      case 'series': // 点击到折线上
         // 初次点击, 所有的点对应的值都是 undefined
         oPoint[params.dataIndex] = !oPoint[params.dataIndex];
-        // 如果状态值为真, 显示 markPoint
-        if (oPoint[params.dataIndex]) {
-          let tempObj = {};
-          tempObj.xAxis = params.dataIndex;
-          tempObj.value = params.data;
-          tempObj.yAxis = params.data;
-          markPointVal.push(tempObj);
-          option.series[0].markPoint.data = markPointVal;
-          myChart.setOption(option);
-        } else {
-          // 如果状态值为假, 隐藏 markPoint
-          let delObjIdx = markPointVal.findIndex(function (el) {
-            return el.xAxis === params.dataIndex;
-          });
-          markPointVal.splice(delObjIdx, 1);
-          option.series[0].markPoint.data = markPointVal;
-          myChart.setOption(option);
-        }
-      }
+        arg.dataIndex = params.dataIndex;
+        arg.data = params.data;
+        clickMarkPoint(arg);
+        break;
+      case 'markArea': // 点击标记面积区("空白处")
+        params.dataIndex = showTipIdx;
+        oPoint[params.dataIndex] = !oPoint[params.dataIndex];
+        arg.dataIndex = showTipIdx;
+        arg.data = seriesVal[showTipIdx];
+        clickMarkPoint(arg);
+        break;
+      case 'markPoint': // 点击的是标记点, 就只有隐藏标记点
+        params.dataIndex = showTipIdx;
+        oPoint[params.dataIndex] = false; // 只隐藏
+        arg.dataIndex = params.dataIndex;
+        arg.data = params.data.value;
+        clickMarkPoint(arg);
+        break;
     }
+    // 判断点击事件发生的区域
   });
 
   myChart.setOption(option);
+
+  // 控制 MarkPoint 显隐的方法
+  function clickMarkPoint(arg) {
+    if (oPoint[arg.dataIndex]) {
+      // 如果状态值为真, 显示 markPoint
+      let tempObj = {};
+      tempObj.xAxis = arg.dataIndex;
+      tempObj.yAxis = arg.data;
+      tempObj.value = arg.data;
+      markPointVal.push(tempObj);
+      option.series[0].markPoint.data = markPointVal;
+      myChart.setOption(option);
+    } else {
+      // 如果状态值为假, 隐藏 markPoint
+      let delObjIdx = markPointVal.findIndex(function (el) {
+        return el.xAxis === arg.dataIndex;
+      });
+      markPointVal.splice(delObjIdx, 1);
+      option.series[0].markPoint.data = markPointVal;
+      myChart.setOption(option);
+    }
+  }
 
 </script>
 </body>
