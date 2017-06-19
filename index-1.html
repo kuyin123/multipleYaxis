@@ -120,6 +120,7 @@
   let arg = {}; // 控制标记点的函数实参
 
   myChart.on('click', function (params) {
+    // 判断点击事件发生的区域
     switch (params.componentType) {
       case 'series': // 点击到折线上
         // 初次点击, 所有的点对应的值都是 undefined
@@ -143,7 +144,6 @@
         clickMarkPoint(arg);
         break;
     }
-    // 判断点击事件发生的区域
   });
 
   myChart.setOption(option);
