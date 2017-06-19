@@ -15,10 +15,12 @@
     height: 600px;
     margin: 0 auto;
   }
-  .btn-box{
-  	text-align: center;
-  	margin: 20px 0;
+  
+  .btn-box {
+    text-align: center;
+    margin: 20px 0;
   }
+  
   .button {
     border: 1px solid #5793f3;
     color: #fff;
@@ -66,16 +68,14 @@
   }
 
   var option = {
-    color: colors,
+    /*color: colors,*/
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross'
       }
     },
-    grid: {
-      right: '20%'
-    },
+    
     toolbox: {
       feature: {
         dataView: {
@@ -97,7 +97,14 @@
       type: 'inside'
     }],
     legend: {
-      data: [datas.data[0].typeName]
+      data: [datas.data[0].typeName],
+      left:'10%'
+    },
+    brush: {
+      toolbox: ['rect', 'keep', 'clear'],
+      xAxisIndex: 0,
+      throttleType: 'debounce',
+      throttleDelay: 500
     },
     xAxis: [{
       type: 'category',
@@ -112,11 +119,11 @@
       min: 0,
       max: 40,
       position: 'left',
-      axisLine: {
+      /*axisLine: {
         lineStyle: {
           color: colors[0]
         }
-      },
+      },*/
       axisLabel: {
         formatter: '{value} ml'
       }
@@ -148,11 +155,11 @@
       min: 0,
       max: 1000,
       position: 'left',
-      axisLine: {
+      /*axisLine: {
         lineStyle: {
           color: colors[i]
         }
-      },
+      },*/
       offset: 0,
       axisLabel: {
         formatter: '{value} ml'
@@ -162,32 +169,52 @@
     option.series[seriesLength] = {
       name: datas.data[i].typeName,
       type: 'line',
-      yAxisIndex:yAxisLength,
+      yAxisIndex: yAxisLength,
       data: datas.data[i].typeNum
     }
 
     myChart.setOption(option);
   })
-  $('.showEvaporationY').click(function(){
-  	option.yAxis[1].show = true
-  	option.yAxis[1].position = 'left'
+  $('.showEvaporationY').click(function() {
+    option.yAxis[1].show = true
+    option.yAxis[1].position = 'left'
 
-  	option.yAxis[0].show = false
-  	myChart.setOption(option);
+    option.yAxis[0].show = false
+    myChart.setOption(option);
   });
 
-  $('.showRainfallY').click(function(){
-  	option.yAxis[0].show = true
-  	option.yAxis[1].show = false
-  	myChart.setOption(option);
+  $('.showRainfallY').click(function() {
+    option.yAxis[0].show = true
+    option.yAxis[1].show = false
+    myChart.setOption(option);
   });
-  $('.showAllY').click(function(){
-  	option.yAxis[0].show = true
+  $('.showAllY').click(function() {
+    option.yAxis[0].show = true
 
-  	option.yAxis[1].show = true
-  	option.yAxis[1].position = 'right'
-  	myChart.setOption(option);
+    option.yAxis[1].show = true
+    option.yAxis[1].position = 'right'
+    myChart.setOption(option);
   });
+
+  /*myChart.on('brushSelected', renderBrushed);
+
+  function renderBrushed(params) {
+    var brushed = [];
+    var brushComponent = params.batch[0];
+    console.log(params)
+
+    for (var sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+      var rawIndices = brushComponent.selected[sIdx].dataIndex;
+      brushed.push('[Series ' + sIdx + '] ' + rawIndices.join(', '));
+    }
+
+    console.log(brushed.join('\n'))
+  }*/
+  myChart.on('axisareaselected', function () {
+    var series0 = myChart.getModel().getSeries()[0];
+    var series1 = myChart.getModel().getSeries()[1];
+    console.log(series0);
+});
   </script>
 </body>
 
