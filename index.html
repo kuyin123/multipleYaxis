@@ -42,6 +42,7 @@
       <button class="button showEvaporationY">显示蒸发量Y轴</button>
       <button class="button showRainfallY">显示降水量Y轴</button>
       <button class="button showAllY">显示所有Y轴</button>
+      <button class="button getRect">获取Rect</button>
     </div>
     <div id="content1"></div>
   </section>
@@ -75,7 +76,7 @@
         type: 'cross'
       }
     },
-    
+
     toolbox: {
       feature: {
         dataView: {
@@ -98,11 +99,12 @@
     }],
     legend: {
       data: [datas.data[0].typeName],
-      left:'10%'
+      left: '10%'
     },
     brush: {
-      toolbox: ['rect', 'keep', 'clear'],
-      xAxisIndex: 0,
+      toolbox: ['rect','lineX','lineY', 'keep', 'clear'],
+      xAxisIndex: 'all',
+      /*brushLink: 'all',*/
       throttleType: 'debounce',
       throttleDelay: 500
     },
@@ -196,7 +198,7 @@
     myChart.setOption(option);
   });
 
-  /*myChart.on('brushSelected', renderBrushed);
+  myChart.on('brushSelected', renderBrushed);
 
   function renderBrushed(params) {
     var brushed = [];
@@ -208,13 +210,25 @@
       brushed.push('[Series ' + sIdx + '] ' + rawIndices.join(', '));
     }
 
-    console.log(brushed.join('\n'))
-  }*/
-  myChart.on('axisareaselected', function () {
-    var series0 = myChart.getModel().getSeries()[0];
-    var series1 = myChart.getModel().getSeries()[1];
-    console.log(series0);
-});
+    //console.log(brushed.join('\n'))
+    myChart.setOption({
+      title: {
+        backgroundColor: '#333',
+        text: 'SELECTED DATA INDICES: \n' + brushed.join('\n'),
+        bottom: 0,
+        right: 0,
+        width: 100,
+        textStyle: {
+          fontSize: 12,
+          color: '#fff'
+        }
+      }
+    });
+  }
+
+  myChart.on('dataZoom',function(params){
+    console.log(params)
+  })
   </script>
 </body>
 
