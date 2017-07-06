@@ -101,10 +101,22 @@
       data: [datas.data[0].typeName],
       left: '10%'
     },
+    visualMap: {
+      show: false,
+      dimension: 0,
+      pieces: [{
+        gt: 3,
+        lte: 4,
+        color: 'green'
+      }],
+      outOfRange: {
+        color: '#c23531'
+      }
+    },
     brush: {
-      toolbox: ['rect','lineX','lineY', 'keep', 'clear'],
+      toolbox: ['rect', 'lineX', 'lineY', 'keep', 'clear'],
       xAxisIndex: 'all',
-      /*brushLink: 'all',*/
+      brushLink: 'all',
       throttleType: 'debounce',
       throttleDelay: 500
     },
@@ -133,7 +145,44 @@
     series: [{
       name: datas.data[0].typeName,
       type: 'line',
-      data: datas.data[0].typeNum
+      data: datas.data[0].typeNum,
+      label: {
+        normal: {
+          show: false,
+          /*position: 'inside'*/
+        }
+      },
+      markArea: {
+        itemStyle: {
+          normal: {
+            opacity: 1
+          }
+        },
+        data: [
+          [{
+            name: '排除数据',
+            xAxis: '6月'
+          }, {
+            xAxis: '10月'
+          }]
+        ]
+      }
+      /*,
+            markPoint: {
+              data: [{
+                type: 'max',
+                name: '最大值'
+              }, {
+                type: 'min',
+                name: '最小值'
+              }]
+            },
+            markLine: {
+              data: [{
+                type: 'average',
+                name: '平均值'
+              }]
+            }*/
     }]
   }
   myChart.setOption(option);
@@ -226,9 +275,30 @@
     });
   }
 
-  myChart.on('dataZoom',function(params){
-    console.log(params)
-  })
+  /* myChart.on('dataZoom', function(params) {
+     console.log(params)
+     var dataZoomArround = params.batch[0];
+     var startValue = dataZoomArround.startValue||dataZoomArround.start;
+     var endValue = dataZoomArround.endValue||dataZoomArround.end;
+     var arround = endValue - startValue
+     var a = 10;
+     var b = true;
+     if(arround<40){
+       //myChart.series[0].label.normal.show
+       a=20;
+       b = true;
+     }else{
+       a = 20;
+        b = false;
+     }
+     myChart.setOption({
+         series:[{
+           showSymbol:b,
+           symbolSize:a,
+           hoverAnimation:true
+         }]
+       })
+   })*/
   </script>
 </body>
 
