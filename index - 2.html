@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>demo</title>
+  <style>
+  .body {
+    padding: 5px;
+  }
+  
+  #content1,
+  #content2 {
+    width: 80vw;
+    height: 600px;
+    margin: 0 auto;
+  }
+  
+  .btn-box {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .button {
+    border: 1px solid #5793f3;
+    color: #fff;
+    font-size: 22px;
+    background-color: #5793f3;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  </style>
+  <script src="jquery-3.2.1.min.js"></script>
+  <script src="echarts-dev.js"></script>
+</head>
+
+<body>
+  <section class="content">
+    <div class="btn-box">
+      <button class=" button showTtemperature">增加</button>
+      <button class="button showEvaporationY">显示蒸发量Y轴</button>
+      <button class="button showRainfallY">显示降水量Y轴</button>
+      <button class="button showAllY">显示所有Y轴</button>
+      <button class="button getRect">获取Rect</button>
+    </div>
+    <div id="content1"></div>
+  </section>
+  <script type="text/javascript">
+  function GetRandomNum(Min, Max) {
+    var Range = Max - Min;
+    var Rand = Math.random();
+    return (Min + Math.round(Rand * Range));
+  }
+
+  // 基于准备好的dom，初始化echarts实例
+  var myChart = echarts.init(document.getElementById('content1'));
+
+  // 指定图表的配置项和数据
+  //app.title = '多 Y 轴示例';
+
+  var colors = ['#5793f3', '#d14a61', '#675bba'];
+  var datas = {
+    time: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+    data: [{
+      typeName: "降水量",
+      typeNum: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
+    }]
+  }
+
+  var option = {
+    /*color: colors,*/
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      }
+    },
+
+    toolbox: {
+      feature: {
+        dataView: {
+          show: true,
+          readOnly: false
+        },
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        restore: {
+          show: true
+        },
+        saveAsImage: {
+          show: true
+        }
+      }
+    },
+    dataZoom: [{
+      type: 'inside'
+    }],
+    legend: {
+      data: [datas.data[0].typeName],
+      left: '10%'
+    },
+    visualMap: {
+      show: false,
+      dimension: 0,
+      pieces: [{
+        gt: 3,
+        lte: 4,
+        color: 'green'
+      }],
+      outOfRange: {
+        color: '#c23531'
+      }
+    },
+    brush: {
+      toolbox: ['rect', 'lineX', 'lineY', 'keep', 'clear'],
+      xAxisIndex: 'all',
+      brushLink: 'all',
+      throttleType: 'debounce',
+      throttleDelay: 500
+    },
+    xAxis: [{
+      type: 'category',
+      axisTick: {
+        alignWithLabel: true
+      },
+      data: datas.time
+    }],
+    yAxis: [{
+      type: 'value',
+      name: datas.data[0].typeName,
+      min: 0,
+      max: 40,
+      position: 'left',
+      /*axisLine: {
+        lineStyle: {
+          color: colors[0]
+        }
+      },*/
+      axisLabel: {
+        formatter: '{value} ml'
+      }
+    }],
+    series: [{
+      name: datas.data[0].typeName,
+      type: 'line',
+      data: datas.data[0].typeNum,
+      label: {
+        normal: {
+          show: false,
+          /*position: 'inside'*/
+        }
+      },
+      markArea: {
+        itemStyle: {
+          normal: {
+            opacity: 1
+          }
+        },
+        data: [
+          [{
+            name: '排除数据',
+            xAxis: '6月'
+          }, {
+            xAxis: '10月'
+          }]
+        ]
+      }
+      /*,
+            markPoint: {
+              data: [{
+                type: 'max',
+                name: '最大值'
+              }, {
+                type: 'min',
+                name: '最小值'
+              }]
+            },
+            markLine: {
+              data: [{
+                type: 'average',
+                name: '平均值'
+              }]
+            }*/
+    }]
+  }
+  myChart.setOption(option);
+
+  $(".showTtemperature").click(function() {
+    var i = datas.data.length
+    if (i >= 2) return
+    var legendDataLength = option.legend.data.length
+    var yAxisLength = option.yAxis.length
+    var seriesLength = option.series.length
+    datas.data[i] = {
+      typeName: "蒸发量",
+      typeNum: [26, 59, 90, 264, 287, 707, 176, 182, 487, 188, 60, 23]
+    };
+    option.legend.data[legendDataLength] = datas.data[i].typeName
+
+    option.yAxis[yAxisLength] = {
+      type: 'value',
+      show: false,
+      name: datas.data[i].typeName,
+      min: 0,
+      max: 1000,
+      position: 'left',
+      /*axisLine: {
+        lineStyle: {
+          color: colors[i]
+        }
+      },*/
+      offset: 0,
+      axisLabel: {
+        formatter: '{value} ml'
+      }
+    }
+
+    option.series[seriesLength] = {
+      name: datas.data[i].typeName,
+      type: 'line',
+      yAxisIndex: yAxisLength,
+      data: datas.data[i].typeNum
+    }
+
+    myChart.setOption(option);
+  })
+  $('.showEvaporationY').click(function() {
+    option.yAxis[1].show = true
+    option.yAxis[1].position = 'left'
+
+    option.yAxis[0].show = false
+    myChart.setOption(option);
+  });
+
+  $('.showRainfallY').click(function() {
+    option.yAxis[0].show = true
+    option.yAxis[1].show = false
+    myChart.setOption(option);
+  });
+  $('.showAllY').click(function() {
+    option.yAxis[0].show = true
+
+    option.yAxis[1].show = true
+    option.yAxis[1].position = 'right'
+    myChart.setOption(option);
+  });
+
+  myChart.on('brushSelected', renderBrushed);
+
+  function renderBrushed(params) {
+    var brushed = [];
+    var brushComponent = params.batch[0];
+    console.log(params)
+
+    for (var sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+      var rawIndices = brushComponent.selected[sIdx].dataIndex;
+      brushed.push('[Series ' + sIdx + '] ' + rawIndices.join(', '));
+    }
+
+    //console.log(brushed.join('\n'))
+    myChart.setOption({
+      title: {
+        backgroundColor: '#333',
+        text: 'SELECTED DATA INDICES: \n' + brushed.join('\n'),
+        bottom: 0,
+        right: 0,
+        width: 100,
+        textStyle: {
+          fontSize: 12,
+          color: '#fff'
+        }
+      }
+    });
+  }
+
+  /* myChart.on('dataZoom', function(params) {
+     console.log(params)
+     var dataZoomArround = params.batch[0];
+     var startValue = dataZoomArround.startValue||dataZoomArround.start;
+     var endValue = dataZoomArround.endValue||dataZoomArround.end;
+     var arround = endValue - startValue
+     var a = 10;
+     var b = true;
+     if(arround<40){
+       //myChart.series[0].label.normal.show
+       a=20;
+       b = true;
+     }else{
+       a = 20;
+        b = false;
+     }
+     myChart.setOption({
+         series:[{
+           showSymbol:b,
+           symbolSize:a,
+           hoverAnimation:true
+         }]
+       })
+   })*/
+  </script>
+</body>
+
+</html>
